@@ -22,12 +22,14 @@ target/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+ /dist/
+ /.nb-gradle/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
+
+# Firebase service account
+src/main/resources/firebase-service-account.json

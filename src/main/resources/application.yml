@@ -1,0 +1,13 @@
+server:
+  address: 0.0.0.0   # Escucha en todas las interfaces de red
+  port: 8080
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+app:
+  firebase:
+    service-account-path: classpath:firebase-service-account.json
+    api-key: AIzaSyARSYV7tR682qZ_vRBTwLc6g5wZ2_EupdQ
+    identitytoolkit-url: https://identitytoolkit.googleapis.com/v1
