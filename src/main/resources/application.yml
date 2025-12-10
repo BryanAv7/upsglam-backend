@@ -22,3 +22,4 @@ app:
     anon-key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2d2RidW1qY3lqYXRpbGpobnJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNjc2MzMsImV4cCI6MjA4MDY0MzYzM30.qA0kD-cGbOYm2xMH7RZdbaK7M8lO353r3-85MzamPeU"  # ← ¡AGREGA ESTA!
     service-role-key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2d2RidW1qY3lqYXRpbGpobnJqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTA2NzYzMywiZXhwIjoyMDgwNjQzNjMzfQ.FuMsL_oDXxBHugKnfh1i9XRvYK0KEVBei4vbX0CqFAg"
     storage-bucket: "posts"
+    profile-bucket: "profiles"
