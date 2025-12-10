@@ -3,7 +3,6 @@ package com.upsglam.service;
 import com.upsglam.dto.*;
 import com.google.firebase.auth.*;
 import com.google.firebase.auth.UserRecord.CreateRequest;
-import com.google.firebase.auth.FirebaseToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,7 +12,7 @@ import reactor.core.scheduler.Schedulers;
 @Service
 public class FirebaseAuthService {
 
-	private final WebClient webClient;
+    private final WebClient webClient;
     private final String apiKey;
     private final String identityToolkitBase;
 
@@ -48,21 +47,30 @@ public class FirebaseAuthService {
     }
 
     // 3) Google Sign-in: recibe Google id_token (del cliente) y llama signInWithIdp
+    // Actualizado para incluir UID
     public Mono<LoginResponse> signInWithGoogleIdToken(String googleIdToken) {
         String url = "/accounts:signInWithIdp?key=" + apiKey;
 
-        // postBody must be: "id_token=GOOGLE_ID_TOKEN&providerId=google.com"
         var payload = new java.util.HashMap<String, Object>();
         payload.put("postBody", "id_token=" + googleIdToken + "&providerId=google.com");
         payload.put("requestUri", "http://localhost"); // required but can be any valid URL
         payload.put("returnSecureToken", true);
         payload.put("returnIdpCredential", true);
 
+        // 1. Llamada REST para iniciar sesión con Google
         return webClient.post()
                 .uri(url)
                 .bodyValue(payload)
                 .retrieve()
-                .bodyToMono(LoginResponse.class);
+                .bodyToMono(LoginResponse.class)
+                .flatMap(resp -> {
+                    // 2. Verificar idToken con Admin SDK para obtener UID
+                    return verifyIdToken(resp.getIdToken())
+                            .map(decodedToken -> {
+                                resp.setLocalId(decodedToken.getUid()); // <-- UID de Firebase
+                                return resp;
+                            });
+                });
     }
 
     // 4) Verify idToken with Admin SDK
@@ -83,5 +91,4 @@ public class FirebaseAuthService {
             this.returnSecureToken = returnSecureToken;
         }
     }
-    
 }
