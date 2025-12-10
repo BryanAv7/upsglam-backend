@@ -10,7 +10,7 @@ public class LoginResponse {
     private boolean registered;
     private String displayName;
     private String kind;
-    private String rawUserInfo; // usado en Google sign-in
+    private String rawUserInfo; 
 
     public LoginResponse() {
     }

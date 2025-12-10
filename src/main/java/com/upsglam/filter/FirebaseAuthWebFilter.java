@@ -23,7 +23,7 @@ public class FirebaseAuthWebFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String path = exchange.getRequest().getPath().value();
 
-        // proteger rutas /api/** (ejemplo)
+        // proteger rutas
         if (!path.startsWith("/api/")) {
             return chain.filter(exchange);
         }
@@ -37,7 +37,7 @@ public class FirebaseAuthWebFilter implements WebFilter {
 
         return authService.verifyIdToken(token)
                 .flatMap(firebaseToken -> {
-                    // Aquí podrías añadir datos al exchange.attributes para downstream handlers
+                 
                     exchange.getAttributes().put("firebaseUser", firebaseToken);
                     return chain.filter(exchange);
                 })

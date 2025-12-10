@@ -23,7 +23,7 @@ public class FirebaseAuthService {
         this.webClient = WebClient.create(identityToolkitBase);
     }
 
-    // 1) Registro (crea usuario con Admin SDK)
+    // Registro (crea usuario con Admin SDK)
     public Mono<UserRecord> registerUser(String email, String password, String displayName) {
         return Mono.fromCallable(() -> {
             CreateRequest req = new CreateRequest()
@@ -34,7 +34,7 @@ public class FirebaseAuthService {
         }).subscribeOn(Schedulers.boundedElastic());
     }
 
-    // 2) Login email/password -> llama a REST signInWithPassword
+    // Login email/password -> Se llama a REST signInWithPassword
     public Mono<LoginResponse> loginWithEmail(String email, String password) {
         String url = "/accounts:signInWithPassword?key=" + apiKey;
         LoginRequestBody body = new LoginRequestBody(email, password, true);
@@ -46,8 +46,7 @@ public class FirebaseAuthService {
                 .bodyToMono(LoginResponse.class);
     }
 
-    // 3) Google Sign-in: recibe Google id_token (del cliente) y llama signInWithIdp
-    // Actualizado para incluir UID
+    // Google Sign-in: recibe Google id_token (del cliente) y llama signInWithIdp
     public Mono<LoginResponse> signInWithGoogleIdToken(String googleIdToken) {
         String url = "/accounts:signInWithIdp?key=" + apiKey;
 
@@ -57,14 +56,14 @@ public class FirebaseAuthService {
         payload.put("returnSecureToken", true);
         payload.put("returnIdpCredential", true);
 
-        // 1. Llamada REST para iniciar sesión con Google
+        // Llamada REST para iniciar sesión con Google
         return webClient.post()
                 .uri(url)
                 .bodyValue(payload)
                 .retrieve()
                 .bodyToMono(LoginResponse.class)
                 .flatMap(resp -> {
-                    // 2. Verificar idToken con Admin SDK para obtener UID
+                    // Verificar idToken con Admin SDK para obtener UID
                     return verifyIdToken(resp.getIdToken())
                             .map(decodedToken -> {
                                 resp.setLocalId(decodedToken.getUid()); // <-- UID de Firebase
@@ -73,13 +72,13 @@ public class FirebaseAuthService {
                 });
     }
 
-    // 4) Verify idToken with Admin SDK
+    // Verify idToken with Admin SDK
     public Mono<FirebaseToken> verifyIdToken(String idToken) {
         return Mono.fromCallable(() -> FirebaseAuth.getInstance().verifyIdToken(idToken))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
-    // DTO internal for signInWithPassword request format
+    // DTO internal for signInWithPassword 
     static class LoginRequestBody {
         public String email;
         public String password;

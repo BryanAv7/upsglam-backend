@@ -27,7 +27,7 @@ public class SupabaseStorageService {
     }
 
     /**
-     * Sube la imagen y devuelve la URL pública
+     * Se sube la imagen y devuelve la URL pública
      */
     public Mono<String> uploadImage(String userUid, MultipartFile file) {
         String extension = "";
@@ -52,7 +52,7 @@ public class SupabaseStorageService {
                                 .retrieve()
                                 .bodyToMono(Map.class) // Supabase devuelve info del objeto
                                 .map(resp -> {
-                                    // Construir URL pública: https://<supabase>.co/storage/v1/object/public/{bucket}/{path}
+                                    // Se Construye URL pública
                                  
                                     return supabaseUrl + "/storage/v1/object/public/" + bucketName + "/" + storagePath;
                                 })

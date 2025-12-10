@@ -3,7 +3,7 @@ package com.upsglam.controller;
 import com.upsglam.service.PostService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.codec.multipart.FilePart; // ← Importa esto
+import org.springframework.http.codec.multipart.FilePart; 
 import reactor.core.publisher.Mono;
 
 import java.util.Map;

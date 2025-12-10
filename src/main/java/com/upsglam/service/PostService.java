@@ -16,7 +16,7 @@ import java.util.UUID;
 public class PostService {
 
     private final WebClient supabaseWebClient;
-    private final SupabaseConfig supabaseConfig; // 👈 Inyectamos la config
+    private final SupabaseConfig supabaseConfig; 
 
     public PostService(WebClient supabaseWebClient, SupabaseConfig supabaseConfig) {
         this.supabaseWebClient = supabaseWebClient;
@@ -25,14 +25,14 @@ public class PostService {
 
     public Mono<Map<String, Object>> createPost(String userUid, String caption, FilePart image) {
         String filename = userUid + "_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().substring(0, 8) + ".jpg";
-        String path = "posts/" + filename; // o usa dinámico: supabaseConfig.getBucketName() + "/..."
+        String path = "posts/" + filename; 
 
         return uploadToSupabaseStorage(path, image)
                 .map(url -> {
                     Map<String, Object> result = new HashMap<>();
                     result.put("success", true);
                     result.put("imageUrl", url);
-                    result.put("uid", userUid);
+                    result.put("uid", userUid); // Puente entre Firebase y Supabase
                     result.put("caption", caption);
                     result.put("filename", filename);
                     return result;
@@ -40,7 +40,7 @@ public class PostService {
     }
 
     private Mono<String> uploadToSupabaseStorage(String path, FilePart filePart) {
-        // ✅ Construye la URL con la config inyectada
+        
         String objectUrl = "/storage/v1/object/" + supabaseConfig.getBucketName() + "/" + path;
 
         return supabaseWebClient.put()
@@ -48,7 +48,7 @@ public class PostService {
                 .contentType(filePart.headers().getContentType() != null 
                         ? filePart.headers().getContentType() 
                         : MediaType.IMAGE_JPEG)
-                .body(filePart.content(), DataBuffer.class) // ✅ Streaming reactivo
+                .body(filePart.content(), DataBuffer.class) 
                 .retrieve()
                 .toBodilessEntity()
                 .thenReturn(getPublicUrl(path));

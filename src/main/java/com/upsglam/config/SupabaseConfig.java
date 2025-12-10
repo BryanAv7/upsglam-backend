@@ -25,7 +25,7 @@ public class SupabaseConfig {
         this.bucketName = bucketName;
     }
 
-    // ✅ Getters (ahora sí existen)
+   
     public String getSupabaseUrl() {
         return supabaseUrl;
     }
@@ -46,8 +46,8 @@ public class SupabaseConfig {
     public WebClient supabaseWebClient() {
         return WebClient.builder()
                 .baseUrl(supabaseUrl)
-                .defaultHeader("apikey", anonKey)                         // anonKey
-                .defaultHeader("Authorization", "Bearer " + serviceRoleKey) // serviceRoleKey
+                .defaultHeader("apikey", anonKey)                         
+                .defaultHeader("Authorization", "Bearer " + serviceRoleKey) 
                 .build();
     }
 }
