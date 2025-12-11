@@ -11,6 +11,9 @@ public class LoginResponse {
     private String displayName;
     private String kind;
     private String rawUserInfo; 
+    
+    private String photoUrl;
+
 
     public LoginResponse() {
     }
@@ -85,5 +88,14 @@ public class LoginResponse {
 
     public void setRawUserInfo(String rawUserInfo) {
         this.rawUserInfo = rawUserInfo;
+    }
+    
+    
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 }
