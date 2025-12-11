@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Mono;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class UserProfileService {
@@ -96,5 +98,31 @@ public class UserProfileService {
                             .retrieve()
                             .bodyToMono(Void.class);
                 });
+    }
+
+
+    // Obtener URL de foto de perfil desde Supabase
+    public Mono<String> getProfileUrl(String userUid) {
+        return webClient.get()
+                .uri("/rest/v1/user_profile_images?select=profile_url&user_uid=eq." + userUid)
+                .header("apikey", supabaseConfig.getAnonKey())
+                .header("Authorization", "Bearer " + supabaseConfig.getServiceRoleKey())
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(json -> {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        JsonNode node = mapper.readTree(json);
+                        if (node.isArray() && node.size() > 0) {
+                            return node.get(0).get("profile_url").asText();
+                        } else {
+                            return "";
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return "";
+                    }
+                })
+                .onErrorReturn("");
     }
 }

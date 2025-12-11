@@ -25,7 +25,7 @@ public class AuthController {
         this.userProfileService = userProfileService;
     }
 
-    // ======================== Registro normal (multipart/form-data) ========================
+    // -- Registro --
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseEntity<Map<String, Object>>> register(
             @RequestPart("displayName") String displayName,
@@ -67,52 +67,58 @@ public class AuthController {
                 });
     }
 
-    // ======================== Login normal ========================
+    // -- Login --
     @PostMapping("/login")
     public Mono<ResponseEntity<?>> login(@RequestBody com.upsglam.dto.LoginRequest req) {
         System.out.println("[AuthController] Login solicitado: " + req.email);
         return authService.loginWithEmail(req.email, req.password)
-                .doOnNext(resp -> System.out.println("[AuthController] Login OK: " + resp))
-                .map(ResponseEntity::ok);
+                .flatMap(resp -> 
+                    userProfileService.getProfileUrl(resp.getLocalId())
+                            .map(photoUrl -> {
+                                Map<String, Object> result = new HashMap<>();
+                                result.put("uid", resp.getLocalId());
+                                result.put("displayName", resp.getDisplayName());
+                                result.put("photoUrl", photoUrl);
+                                System.out.println("[AuthController] Login OK, photoUrl: " + photoUrl);
+                                return ResponseEntity.ok(result);
+                            })
+                );
     }
 
-    // ======================== Google SignIn ========================
+    // -- Google SignIn --
     @PostMapping("/google")
     public Mono<ResponseEntity<Map<String, Object>>> googleSignIn(@RequestBody GoogleSignInRequest req) {
         System.out.println("[AuthController] Google SignIn solicitado");
         return authService.signInWithGoogleIdToken(req.idToken)
                 .flatMap(resp -> {
                     String uid = resp.getLocalId();
-                    String photoUrl = resp.getPhotoUrl();
-                    System.out.println("[AuthController] Google UID: " + uid + ", PhotoURL: " + photoUrl);
+                    String googlePhotoUrl = resp.getPhotoUrl();
+                    System.out.println("[AuthController] Google UID: " + uid + ", PhotoURL: " + googlePhotoUrl);
 
-                    if (photoUrl == null || photoUrl.isBlank()) {
-                        Map<String, Object> out = new HashMap<>();
-                        out.put("uid", uid);
-                        out.put("displayName", resp.getDisplayName());
-                        out.put("photoUrl", "");
-                        return Mono.just(ResponseEntity.ok(out));
-                    }
-
-                    System.out.println("[AuthController] Descargando y subiendo foto de Google a Supabase...");
-                    return userProfileService.uploadProfileImageFromUrl(uid, photoUrl)
-                            .doOnNext(url -> System.out.println("[AuthController] URL subida desde Google: " + url))
-                            .flatMap(url ->
-                                    userProfileService.saveProfileUrlToDb(uid, url)
-                                            .doOnSuccess(v -> System.out.println("[AuthController] URL de Google guardada en DB"))
-                                            .thenReturn(url)
-                            )
-                            .map(url -> {
+                    return userProfileService.getProfileUrl(uid)
+                            .flatMap(photoUrlFromDb -> {
+                                String finalPhotoUrl = !photoUrlFromDb.isBlank() ? photoUrlFromDb : googlePhotoUrl;
+                                if (!googlePhotoUrl.isBlank() && photoUrlFromDb.isBlank()) {
+                                    System.out.println("[AuthController] Subiendo foto de Google a Supabase...");
+                                    return userProfileService.uploadProfileImageFromUrl(uid, googlePhotoUrl)
+                                            .flatMap(url -> userProfileService.saveProfileUrlToDb(uid, url)
+                                                    .thenReturn(url)
+                                            )
+                                            .map(url -> finalPhotoUrl);
+                                }
+                                return Mono.just(finalPhotoUrl);
+                            })
+                            .map(finalPhotoUrl -> {
                                 Map<String, Object> out = new HashMap<>();
                                 out.put("uid", uid);
                                 out.put("displayName", resp.getDisplayName());
-                                out.put("photoUrl", url);
+                                out.put("photoUrl", finalPhotoUrl);
                                 return ResponseEntity.ok(out);
                             });
                 });
     }
 
-    // ======================== Verificar Token ========================
+    // -- Verificar Token --
     @GetMapping("/verify")
     public Mono<ResponseEntity<?>> verifyToken(@RequestHeader("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
