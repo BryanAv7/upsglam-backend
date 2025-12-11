@@ -50,7 +50,8 @@ public class SupabaseConfig {
         return profileBucket;
     }
 
-    @Bean
+    //@Bean
+    @Bean(name = "supabaseWebClient")
     public WebClient supabaseWebClient() {
         return WebClient.builder()
                 .baseUrl(supabaseUrl)
