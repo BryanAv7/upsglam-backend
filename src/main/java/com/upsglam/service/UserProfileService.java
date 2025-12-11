@@ -1,6 +1,8 @@
 package com.upsglam.service;
 
 import com.upsglam.config.SupabaseConfig;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,7 +17,9 @@ public class UserProfileService {
     private final WebClient webClient;            
     private final SupabaseConfig supabaseConfig;
 
-    public UserProfileService(WebClient webClient, SupabaseConfig supabaseConfig) {
+    public UserProfileService(
+            @Qualifier("supabaseWebClient") WebClient webClient,
+            SupabaseConfig supabaseConfig) {
         this.webClient = webClient;
         this.supabaseConfig = supabaseConfig;
     }
