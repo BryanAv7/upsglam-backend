@@ -19,7 +19,7 @@ public class WebClientConfig {
     @Bean(name = "flaskWebClient")
     public WebClient webClient(WebClient.Builder builder) {
         return builder
-            .baseUrl("http://localhost:5001")
+            .baseUrl("http://127.0.0.1:5000")
             .exchangeStrategies(ExchangeStrategies.builder()
                     .codecs(c -> c.defaultCodecs().maxInMemorySize(50 * 1024 * 1024))
                     .build())
