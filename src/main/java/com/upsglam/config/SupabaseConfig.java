@@ -8,26 +8,21 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class SupabaseConfig {
 
-    private final String supabaseUrl;
-    private final String serviceRoleKey;
-    private final String anonKey;
-    private final String bucketName;
-    private final String profileBucket;
+    @Value("${app.supabase.url}")
+    private String supabaseUrl;
 
-    // Constructor 
-    public SupabaseConfig(
-            @Value("${app.supabase.url}") String supabaseUrl,
-            @Value("${app.supabase.service-role-key}") String serviceRoleKey,
-            @Value("${app.supabase.anon-key}") String anonKey,
-            @Value("${app.supabase.storage-bucket:posts}") String bucketName,
-            @Value("${app.supabase.profile-bucket:profiles}") String profileBucket
-    ) {
-        this.supabaseUrl = supabaseUrl;
-        this.serviceRoleKey = serviceRoleKey;
-        this.anonKey = anonKey;
-        this.bucketName = bucketName;
-        this.profileBucket = profileBucket;
-    }
+    @Value("${app.supabase.service-role-key}")
+    private String serviceRoleKey;
+
+    @Value("${app.supabase.anon-key}")
+    private String anonKey;
+
+    @Value("${app.supabase.storage-bucket:posts}")
+    private String bucketName; // nombre esperado por tu PostService
+
+    @Value("${app.supabase.profile-bucket:profiles}")
+    private String profileBucket; // nombre esperado por tu UserProfileService
+
 
     public String getSupabaseUrl() {
         return supabaseUrl;
@@ -41,21 +36,20 @@ public class SupabaseConfig {
         return anonKey;
     }
 
+    // IMPORTANTE: estos métodos deben mantenerse con este nombre
     public String getBucketName() {
         return bucketName;
     }
 
-    //  fotos de perfil
     public String getProfileBucket() {
         return profileBucket;
     }
 
-    //@Bean
     @Bean(name = "supabaseWebClient")
     public WebClient supabaseWebClient() {
         return WebClient.builder()
                 .baseUrl(supabaseUrl)
-                .defaultHeader("apikey", anonKey)
+                .defaultHeader("apikey", serviceRoleKey) // backend
                 .defaultHeader("Authorization", "Bearer " + serviceRoleKey)
                 .build();
     }
